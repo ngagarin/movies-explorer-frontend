@@ -30,4 +30,8 @@
 
 **Figma**
 
-* [Ссылка на макет в Figma](https://www.figma.com/file/5H3gsn5lIGPwzBPby9jAOo/JavaScript.-Sprint-12?node-id=4453-119&t=cL17xgn8qOK51Y92-0)
+* [Ссылка на макет в Figma](https://disk.yandex.ru/d/4vBNaBdr8_h1TQ)
+
+*****Режим isLoggedIn*****
+По умолчанию вёрстка сайта определена как залогиненый юзер.
+Для изменения необходимо установить isLoggedIn={false} на 43 строке файла App.js
