@@ -1,0 +1,23 @@
+.logo {
+  width: 38px;
+  object-fit: cover;
+  transition: .3s;
+}
+
+.logo:focus {
+  outline: 1px solid #00000060;
+  border-radius: 8px;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logo_active {
+  cursor: default;
+  pointer-events: none;
+}
+
+.logo-image {
+  width: 38px;
+}

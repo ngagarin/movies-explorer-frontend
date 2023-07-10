@@ -1,0 +1,137 @@
+.burger-menu-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  display: none;
+}
+
+.burger-menu-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #000;
+  opacity: .3;
+}
+
+.burger-menu-container_open {
+  display: block;
+}
+
+.burger-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  overflow: hidden;
+  padding: 27.16px 27.16px 92px;
+  box-sizing: border-box;
+  width: 68%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: min-content auto min-content;
+  justify-items: center;
+  background: #fff;
+}
+
+
+.burger-menu__close-button {
+  grid-row: 1;
+  justify-self: end;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  background: none;
+  background-image: url(../../images/header/close_burger.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.burger-menu__links {
+  grid-row: 2;
+  margin: 0;
+  padding: 110.44px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 28px;
+  list-style: none;
+}
+
+.burger-menu__link {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  transition: .3s;
+}
+
+.burger-menu__link:focus {
+  outline: 1px solid #00000060;
+  border-radius: 3px;
+}
+
+.burger-menu__link:hover {
+  text-shadow: 0 4px 3px #00000060;
+}
+
+.burger-menu__active-link {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 22px;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  cursor: default;
+  text-decoration: underline;
+  pointer-events: none;
+}
+
+.burger-menu__link_with-icon {
+  grid-row: 3;
+  align-self: end;
+  display: flex;
+  column-gap: 13px;
+  align-items: center;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.burger-menu__link-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  background-image: url(../../images/header/icon_account.svg);
+  background-size: 11.38px 11.67px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+@media screen and (min-width:769px) {
+  .burger-menu {
+    display: none;
+  }
+}
+
+@media screen and (max-width:400px) {
+  .burger-menu {
+    padding: 18.16px 18.16px 92px;
+    width: 100%;
+  }
+
+  .burger-menu__links {
+    padding-top: 105.44px;
+    row-gap: 24px;
+  }
+}

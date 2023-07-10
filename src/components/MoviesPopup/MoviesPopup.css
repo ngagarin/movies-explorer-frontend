@@ -1,0 +1,121 @@
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 70px;
+  background-color: rgba(255, 255, 255, .8);
+  color: #000;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.5s, opacity 0.5s linear;
+}
+
+.popup_opened {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popup__video-conteiner {
+  max-width: 1140px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .8);
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  position: relative;
+}
+
+.popup__close-button {
+  align-self: flex-end;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  background-image: url(../../images/popup-video/close-button.svg);
+  background-repeat: no-repeat;
+  border: 0;
+  cursor: pointer;
+  background-color: transparent;
+  background-position: center;
+  transition: opacity .2s;
+}
+
+.popup__close-button:hover {
+  opacity: .6;
+}
+
+.popup__video {
+  margin: 12px auto 0;
+  width: 640px !important;
+  height: 360px !important;
+}
+
+.popup__video-caption {
+  margin-top: 10px;
+  padding: 0 40px 40px 40px;
+  list-style: none;
+}
+
+.popup__video-caption-item {
+  margin-top: 10px;
+  color: #fff;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -moz-box;
+  display: -webkit-box;
+  line-clamp: 5;
+  box-orient: vertical;
+  -moz-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+}
+
+.popup__video-caption-link {
+  color: #fff;
+  outline: none;
+  text-decoration: none;
+  transition: .3s;
+}
+
+.popup__video-caption-link:focus {
+  outline: 1px solid #ffffff60;
+  border-radius: 3px;
+}
+
+.popup__video-caption-link:hover {
+  text-shadow: 0 4px 3px #ffffff60;
+}
+
+@media screen and (max-width: 840px) {
+  .popup {
+    padding: 30px;
+  }
+
+  .popup__video {
+    margin: 12px auto 0;
+    width: 90% !important;
+  }
+
+  .popup__video-caption-item {
+    line-clamp: 10;
+    -webkit-line-clamp: 10;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .popup {
+    padding: 10px;
+  }
+
+  .popup__video-caption-item {
+    line-clamp: 9;
+    -webkit-line-clamp: 9;
+  }
+}
