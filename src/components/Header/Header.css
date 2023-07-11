@@ -31,7 +31,7 @@
 
 .header__right-section {
   display: flex;
-  justify-content: end;
+  justify-content: flex-end;
   align-items: center;
   flex-grow: 1;
 }
@@ -149,7 +149,7 @@
     display: none;
   }
 
-  .nav-bar__link_low-res-hidden {
+  .nav-bar__link_type_hidden {
     display: none;
   }
 

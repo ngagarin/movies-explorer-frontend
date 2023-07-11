@@ -16,7 +16,7 @@ function MoviesPopup({ onClose, film }) {
 
   return (
     <section className={`popup ${film ? "popup_opened" : ""}`}>
-      <figure className="popup__video-conteiner">
+      <figure className="popup__video-container">
         <button
           onClick={onClose}
           className="popup__close-button"

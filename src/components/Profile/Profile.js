@@ -42,7 +42,7 @@ function Profile({ onLogout, isBurgerMenuOpen, onBurgerMenuClose }) {
       <BurgerMenu isOpen={isBurgerMenuOpen} onClose={onBurgerMenuClose} />
       <h2 className="profile__form-title">Привет, {currentUser.name}!</h2>
 
-      <form className="profile__form" id="ProsileForm" onSubmit={handleSubmit}>
+      <form className="profile__form" id="ProfileForm" onSubmit={handleSubmit}>
         <ul className="profile__form-container">
           <li className="profile__form-item">
             <p className="profile__field-label">Имя</p>
@@ -100,7 +100,7 @@ function Profile({ onLogout, isBurgerMenuOpen, onBurgerMenuClose }) {
 
           <div className="profile__form-buttons">
             <button
-              form="ProsileForm"
+              form="ProfileForm"
               className={`profile__button ${
                 !isFormValid ? "profile__button_disabled" : ""
               }`}

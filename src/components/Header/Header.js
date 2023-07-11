@@ -5,7 +5,6 @@ import Logo from '../Logo/Logo';
 
 function Header({ isLoggedIn, isLanding, onButtonClick, onBurgerClick }) {
   return (
-    <>
       <header className={`header ${isLanding ? "header_type_landing" : ""}`}>
         <div className="header__left-section">
           <Logo />
@@ -16,13 +15,13 @@ function Header({ isLoggedIn, isLanding, onButtonClick, onBurgerClick }) {
               <>
                 <NavLink
                   to="/movies"
-                  className={({ isActive }) => isActive? "nav-bar__link_active": "nav-bar__link nav-bar__link_low-res-hidden"}
+                  className={({ isActive }) => isActive? "nav-bar__link_active": "nav-bar__link nav-bar__link_type_hidden"}
                 >
                   Фильмы
                 </NavLink>
                 <NavLink
                   to="/saved-movies"
-                  className={({ isActive }) => isActive? "nav-bar__link_active": "nav-bar__link nav-bar__link_low-res-hidden"}
+                  className={({ isActive }) => isActive? "nav-bar__link_active": "nav-bar__link nav-bar__link_type_hidden"}
                 >
                   Сохранённые фильмы
                 </NavLink>
@@ -36,7 +35,7 @@ function Header({ isLoggedIn, isLanding, onButtonClick, onBurgerClick }) {
               <>
                 <NavLink
                   to="/profile"
-                  className={({ isActive }) => isActive? "nav-bar__link_active nav-bar__link_with-icon": "nav-bar__link nav-bar__link_low-res-hidden nav-bar__link_with-icon"}
+                  className={({ isActive }) => isActive? "nav-bar__link_active nav-bar__link_with-icon": "nav-bar__link nav-bar__link_type_hidden nav-bar__link_with-icon"}
                 >
                   <span>Аккаунт</span>
                   <div className={`nav-bar__link-icon ${isLanding ? "nav-bar__link-icon_type_landing" : ""}`}></div>
@@ -52,7 +51,6 @@ function Header({ isLoggedIn, isLanding, onButtonClick, onBurgerClick }) {
           </nav>
         </div>
       </header>
-    </>
   );
 }
 
