@@ -28,6 +28,14 @@
 
 Скопировать по [cсылке на GitHub](https://github.com/ngagarin/movies-explorer-frontend.git)
 
+##### Бэкенд:
+
+Посмотреть [на GitHub](https://github.com/ngagarin/movies-explorer-api)
+
 **Figma**
 
 * [Ссылка на макет в Figma](https://disk.yandex.ru/d/4vBNaBdr8_h1TQ)
+
+**Pull request**
+
+* [Ссылка на Pull request (GitHub)](https://github.com/ngagarin/movies-explorer-frontend/pull/2)
