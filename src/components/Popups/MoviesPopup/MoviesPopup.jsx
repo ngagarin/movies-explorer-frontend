@@ -1,28 +1,28 @@
 import ReactPlayer from "react-player";
-import "./MoviesPopup.css";
+import "../Popups.css";
 
-function MoviesPopup({ onClose, film }) {
+function MoviesPopup({ onClose, movie }) {
   const changeDurationFormat = (mins) => {
     return `${Math.floor(mins / 60)}ч ${mins % 60}м`;
   };
 
-  const videoTrailer = film && film.trailerLink;
-  const videoName = film && film.nameRU;
-  const videoYear = film && film.year;
-  const videoCountry = film && film.country;
-  const videoDirector = film && film.director;
-  const videoDescription = film && film.description;
-  const videoDuration = film && film.duration;
+  const videoTrailer = movie && movie.trailerLink;
+  const videoName = movie && movie.nameRU;
+  const videoYear = movie && movie.year;
+  const videoCountry = movie && movie.country;
+  const videoDirector = movie && movie.director;
+  const videoDescription = movie && movie.description;
+  const videoDuration = movie && movie.duration;
 
   return (
-    <section className={`popup ${film ? "popup_opened" : ""}`}>
+    <section className={`popup ${movie ? "popup_opened" : ""}`}>
       <figure className="popup__video-container">
         <button
           onClick={onClose}
           className="popup__close-button"
           type="button"
         ></button>
-        {film && (
+        {movie && (
           <ReactPlayer
             url={videoTrailer}
             className="popup__video"
@@ -33,11 +33,11 @@ function MoviesPopup({ onClose, film }) {
         <ul className="popup__video-caption">
 
           <li className="popup__video-caption-item">
-            {film ? (
+            {movie ? (
               <span>
                 Название:{" "}
                 <a
-                  href={film.trailerLink}
+                  href={movie.trailerLink}
                   className="popup__video-caption-link"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -50,19 +50,19 @@ function MoviesPopup({ onClose, film }) {
             )}
           </li>
           <li className="popup__video-caption-item">
-            {film ? `Год выпуска: ${videoYear}` : ""}
+            {movie ? `Год выпуска: ${videoYear}` : ""}
           </li>
           <li className="popup__video-caption-item">
-            {film ? `Страна: ${videoCountry}` : ""}
+            {movie ? `Страна: ${videoCountry}` : ""}
           </li>
           <li className="popup__video-caption-item">
-            {film ? `Режиссёр: ${videoDirector}` : ""}
+            {movie ? `Режиссёр: ${videoDirector}` : ""}
           </li>
           <li className="popup__video-caption-item">
-            {film ? `Описание: ${videoDescription}` : ""}
+            {movie ? `Описание: ${videoDescription}` : ""}
           </li>
           <li className="popup__video-caption-item">
-            {film
+            {movie
               ? `Продолжительность: ${changeDurationFormat(videoDuration)}`
               : ""}
           </li>

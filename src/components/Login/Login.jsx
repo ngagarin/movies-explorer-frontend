@@ -1,12 +1,12 @@
-import "../Form/Form.css";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import "../Form/Form.css";
 import Logo from "../Logo/Logo";
 import { validateField } from "../../hooks/Validator";
 import showPasswordImage from "../../images/password/show_pass.svg";
 import hidePasswordImage from "../../images/password/hide_pass.svg";
 
-function Login() {
+function Login({ onLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -27,11 +27,8 @@ function Login() {
   }
 
   function handleSubmit(e) {
-    console.log({
-      email: email,
-      password: password,
-    });
     e.preventDefault();
+    onLogin(email, password);
   }
 
   const emailError = validateField(email, { isEmpty: true, isEmail: true });
@@ -80,7 +77,6 @@ function Login() {
             className={`form__input ${
               emailDirty && emailError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handleEmailInput(event, setEmail)}
             onChange={handleEmailInput}
             onFocus={() => setEmailDirty(true)}
             onBlur={() => setEmailDirty(false)}
@@ -103,7 +99,6 @@ function Login() {
             className={`form__input ${
               passwordDirty && passwordError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handlePasswordInput(event, setPassword)}
             onChange={handlePasswordInput}
             onFocus={() => setPasswordDirty(true)}
             onBlur={() => setPasswordDirty(false)}

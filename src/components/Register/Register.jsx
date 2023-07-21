@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import "../Form/Form.css";
 import Logo from "../Logo/Logo";
 import { validateField } from "../../hooks/Validator";
 import showPasswordImage from "../../images/password/show_pass.svg";
 import hidePasswordImage from "../../images/password/hide_pass.svg";
 
-function Register() {
+function Register({ onRegister }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,12 +45,8 @@ function Register() {
   }
 
   function handleSubmit(e) {
-    console.log({
-      name: name,
-      email: email,
-      password: password,
-    });
     e.preventDefault();
+    onRegister(name, email, password);
   }
 
   const nameError = validateField(name, { isEmpty: true, minLength: 2 });
@@ -106,7 +103,6 @@ function Register() {
             className={`form__input ${
               nameError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handleNamelInput(event, setName)}
             onChange={handleNamelInput}
             onFocus={() => setNameDirty(true)}
             onBlur={() => setNameDirty(false)}
@@ -131,7 +127,6 @@ function Register() {
             className={`form__input ${
               emailError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handleEmailInput(event, setEmail)}
             onChange={handleEmailInput}
             onFocus={() => setEmailDirty(true)}
             onBlur={() => setEmailDirty(false)}
@@ -154,7 +149,6 @@ function Register() {
             className={`form__input ${
               passwordError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handlePasswordInput(event, setPassword)}
             onChange={handlePasswordInput}
             onFocus={() => setPasswordDirty(true)}
             onBlur={() => setPasswordDirty(false)}
@@ -188,9 +182,6 @@ function Register() {
             className={`form__input ${
               confirmPasswordError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) =>
-            //   handleConfirmPasswordInput(event, setConfirmPassword)
-            // }
             onChange={handleConfirmPasswordInput}
             onFocus={() => setConfirmPasswordDirty(true)}
             onBlur={() => setConfirmPasswordDirty(false)}

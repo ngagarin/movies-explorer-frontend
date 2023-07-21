@@ -13,6 +13,7 @@
   width: 100%;
   height: inherit;
   object-fit: cover;
+  cursor: pointer;
 }
 
 .card__element {

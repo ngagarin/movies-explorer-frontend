@@ -7,6 +7,7 @@
 }
 
 .cards__list {
+  width: 100%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
@@ -34,6 +35,16 @@
 .cards__button:hover {
   opacity: .6;
   cursor: pointer;
+}
+
+.cards__message {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+  color: #426BA8;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 16px;
 }
 
 @media screen and (max-width: 1100px) {
