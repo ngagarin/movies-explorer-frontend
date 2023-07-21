@@ -14,7 +14,7 @@ import Register from "../Register/Register";
 import Profile from "../Profile/Profile";
 import Movies from "../Movies/Movies";
 import SavedMovies from "../SavedMovies/SavedMovies";
-import InfoTooltip from "../Popups/InfoTooltip/InfoTooltip";
+import InfoTooltip from "../InfoTooltip/InfoTooltip";
 import PageNotFound from "../PageNotFound/PageNotFound";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import MainApi from "../../utils/MainApi";
@@ -76,14 +76,14 @@ function App() {
     signUp(name, email, password)
       .then(() => {
         setAuthStatus({
-          image: checkmarkImg,
+          image: wellcomeImg,
           message: getGreetingMessage(name),
         });
         handleLogin(email, password);
       })
       .catch(() => {
         setAuthStatus({
-          image: wellcomeImg,
+          image: crossImg,
           message: SOMETHING_WENT_WRONG_MSG,
         });
       })

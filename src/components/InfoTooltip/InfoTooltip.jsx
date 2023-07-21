@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Lottie from 'lottie-react';
-import "../Popups.css";
+import "../Popups/Popups.css";
 
 function InfoTooltip({ authStatus, isOpen, onClose }) {
+  const [isAnimationStopped, setIsAnimationStopped] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+
   useEffect(() => {
     const handleEscapeKey = (event) => {
       if (event.key === "Escape") {
@@ -25,6 +28,9 @@ function InfoTooltip({ authStatus, isOpen, onClose }) {
         onClose();
       }, 1500);
 
+      setIsAnimationStopped(false);
+      setAnimationKey((prevKey) => prevKey + 1);
+
       return () => {
         document.removeEventListener("keydown", handleEscapeKey);
         document.removeEventListener("mousedown", handleOutsideClick);
@@ -41,6 +47,8 @@ function InfoTooltip({ authStatus, isOpen, onClose }) {
     <section className={`popup ${isOpen && 'popup_opened'}`}>
       <figure className="popup__infoTooltip-container">
         <Lottie
+          key={animationKey}
+          isStopped={isAnimationStopped}
           className="popup__icon"
           animationData={authStatus.image}
           loop={false}

@@ -141,14 +141,19 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
           prevMovies.filter((savedMovie) => savedMovie._id !== movie._id)
         );
 
-        if (currentNewSavedMovies.length === 0) {
+        if (isToggle && shortSavedMovies.length === 0) {
+          setIsInputDisabled(true);
+        }
+
+        // if (isToggle && shortSavedMovies.length === 0 && currentNewSavedMovies.length === 0) {
+        //   setIsInputDisabled(true);
+        //   setIsToggleDisabled(true);
+        // }
+
+        if (!isToggle && currentNewSavedMovies.length === 0) {
           setIsInputDisabled(true);
           setIsToggleDisabled(true);
           setErrorMessage(HAVE_NO_MOVIE_MSG);
-        }
-
-        if (shortSavedMovies.length === 0) {
-          setIsInputDisabled(true);
         }
       } catch {
         setErrorMessage(MOVIE_DELETE_ERROR_MSG);

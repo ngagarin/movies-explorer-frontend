@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import "./MoviesCard.css";
-import MoviesPopup from "../Popups/MoviesPopup/MoviesPopup";
+import MoviesPopup from "../MoviesPopup/MoviesPopup";
 
 function MoviesCard({ movie, savedMoviesToggle, savedMovies }) {
   const { pathname } = useLocation();

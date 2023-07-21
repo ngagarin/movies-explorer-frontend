@@ -1,5 +1,5 @@
 import ReactPlayer from "react-player";
-import "../Popups.css";
+import "../Popups/Popups.css";
 
 function MoviesPopup({ onClose, movie }) {
   const changeDurationFormat = (mins) => {
