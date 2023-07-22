@@ -64,7 +64,6 @@ function Profile({
     fetchUserData();
   }, []);
 
-
   const nameError = validateField(name, { isEmpty: true, minLength: 2 });
   const emailError = validateField(email, { isEmpty: true, isEmail: true });
   const isSubmitButtonDisabled = !isFormDirty || nameError || emailError;
@@ -139,29 +138,29 @@ function Profile({
               </li>
             </ul>
           </form>
-
-          <div className="profile__form-buttons">
-            <button
-              form="ProfileForm"
-              className={`profile__button ${
-                isSubmitButtonDisabled ? "profile__button_disabled" : ""
-              }`}
-              type="submit"
-              disabled={isSubmitButtonDisabled}
-            >
-              Редактировать
-            </button>
-
-            <button
-              className="profile__button profile__button_type_highlighted"
-              type="button"
-              onClick={onLogout}
-            >
-              Выйти из аккаунта
-            </button>
-          </div>
         </>
       )}
+
+      <div className="profile__form-buttons">
+        <button
+          form="ProfileForm"
+          className={`profile__button ${
+            isSubmitButtonDisabled ? "profile__button_disabled" : ""
+          }`}
+          type="submit"
+          disabled={isSubmitButtonDisabled}
+        >
+          Редактировать
+        </button>
+
+        <button
+          className="profile__button profile__button_type_highlighted"
+          type="button"
+          onClick={onLogout}
+        >
+          Выйти из аккаунта
+        </button>
+      </div>
     </section>
   );
 }
