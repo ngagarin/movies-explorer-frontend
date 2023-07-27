@@ -1,72 +1,104 @@
-import React, { useState, useEffect } from "react";
 import "./Profile.css";
+import React, { useState, useEffect, useContext } from "react";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import { validateField } from "../../hooks/Validator";
+import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import Preloader from "../Preloader/Preloader";
-import MainApi from "../../utils/MainApi";
 
 function Profile({
   onLogout,
   onUpdateUser,
   isBurgerMenuOpen,
   onBurgerMenuClose,
+  isFormDisabled,
 }) {
-  const [currentName, setCurrentlName] = useState("");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [nameDirty, setNameDirty] = useState(false);
-  const [emailDirty, setEmailDirty] = useState(false);
-  const [isFormDirty, setIsFormDirty] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const currentUser = useContext(CurrentUserContext);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    nameDirty: false,
+    emailDirty: false,
+    isFormDirty: false,
+    isDataChanged: false,
+    isLoading: true,
+  });
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-    setNameDirty(true);
-    setIsFormDirty(true);
+  const {
+    name,
+    email,
+    nameDirty,
+    emailDirty,
+    isFormDirty,
+    isDataChanged,
+    isLoading,
+  } = formData;
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+      [`${name}Dirty`]: true,
+      isDataChanged: value !== currentUser[name],
+      isFormDirty: true,
+    }));
   };
 
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-    setEmailDirty(true);
-    setIsFormDirty(true);
+  const resetForm = () => {
+    setFormData({
+      ...formData,
+      name: currentUser.name || "",
+      email: currentUser.email || "",
+      nameDirty: false,
+      emailDirty: false,
+      isFormDirty: false,
+    });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setFormData((prevData) => ({ ...prevData }));
     try {
       await onUpdateUser({
-        name: name,
-        email: email,
+        name: formData.name,
+        email: formData.email,
       });
-      setCurrentlName(name);
-
-      setIsFormDirty(false);
+      setFormData((prevData) => ({
+        ...prevData,
+        isDataChanged: false,
+        isFormDirty: false,
+      }));
+      resetForm();
     } catch (error) {
       console.error(error);
+    } finally {
+      setFormData((prevData) => ({ ...prevData }));
     }
   };
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const userData = await MainApi.getUserInfo();
-        setName(userData.name || "");
-        setCurrentlName(userData.name || "");
-        setEmail(userData.email || "");
-        setIsFormDirty(false);
+        setFormData((prevData) => ({
+          ...prevData,
+          name: currentUser.name || "",
+          email: currentUser.email || "",
+          isDataChanged: false,
+          isFormDirty: false,
+          isLoading: currentUser.name === undefined,
+        }));
       } catch (error) {
         console.error(error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [currentUser]);
 
   const nameError = validateField(name, { isEmpty: true, minLength: 2 });
   const emailError = validateField(email, { isEmpty: true, isEmail: true });
-  const isSubmitButtonDisabled = !isFormDirty || nameError || emailError;
+  const isSubmitButtonDisabled =
+    !isFormDirty || nameError || emailError || !isDataChanged;
 
   return (
     <section className="profile">
@@ -75,7 +107,7 @@ function Profile({
         <Preloader />
       ) : (
         <>
-          <h2 className="profile__form-title">Привет, {currentName}!</h2>
+          <h2 className="profile__form-title">{`Привет, ${currentUser.name}!`}</h2>
 
           <form
             className="profile__form"
@@ -91,17 +123,22 @@ function Profile({
                     className={`profile__input ${
                       nameDirty || nameError ? "profile__input_type_error" : ""
                     }`}
-                    onChange={handleNameChange}
-                    onFocus={() => setNameDirty(true)}
-                    onBlur={() => setNameDirty(false)}
+                    onChange={handleInputChange}
+                    onFocus={() =>
+                      setFormData({ ...formData, nameDirty: true })
+                    }
+                    onBlur={() =>
+                      setFormData({ ...formData, nameDirty: false })
+                    }
                     value={name}
                     type="text"
                     placeholder="Имя"
                     id="profile-name-input"
-                    name="profile-name-input"
+                    name="name"
                     autoComplete="off"
                     minLength="2"
                     maxLength="40"
+                    disabled={isFormDisabled}
                     required
                   />
                   {nameDirty && nameError && (
@@ -120,15 +157,20 @@ function Profile({
                         ? "profile__input_type_error"
                         : ""
                     }`}
-                    onChange={handleEmailChange}
-                    onFocus={() => setEmailDirty(true)}
-                    onBlur={() => setEmailDirty(false)}
+                    onChange={handleInputChange}
+                    onFocus={() =>
+                      setFormData({ ...formData, emailDirty: true })
+                    }
+                    onBlur={() =>
+                      setFormData({ ...formData, emailDirty: false })
+                    }
                     value={email}
                     type="email"
                     placeholder="Email"
                     id="profile-email-input"
-                    name="profile-email-input"
+                    name="email"
                     autoComplete="off"
+                    disabled={isFormDisabled}
                     required
                   />
                   {emailDirty && emailError && (
@@ -145,10 +187,10 @@ function Profile({
         <button
           form="ProfileForm"
           className={`profile__button ${
-            isSubmitButtonDisabled ? "profile__button_disabled" : ""
+            isSubmitButtonDisabled || isFormDisabled ? "profile__button_disabled" : ""
           }`}
           type="submit"
-          disabled={isSubmitButtonDisabled}
+          disabled={isSubmitButtonDisabled || isFormDisabled}
         >
           Редактировать
         </button>

@@ -38,4 +38,4 @@
 
 **Pull request**
 
-* [Ссылка на Pull request (GitHub)](https://github.com/ngagarin/movies-explorer-frontend/pull/2)
+* [Ссылка на Pull request (GitHub)](https://github.com/ngagarin/movies-explorer-frontend/pull/3)

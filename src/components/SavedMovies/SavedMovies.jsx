@@ -3,7 +3,6 @@ import "./SavedMovies.css";
 import SearchForm from "../SearchForm/SearchForm";
 import BurgerMenu from "../BurgerMenu/BurgerMenu";
 import MoviesCardList from "../MoviesCardList/MoviesCardList";
-import Preloader from "../Preloader/Preloader";
 import mainApi from "../../utils/MainApi";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import {
@@ -22,15 +21,19 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [isToggleDisabled, setIsToggleDisabled] = useState(false);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [isToggle, setIsToggle] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const currentUser = useContext(CurrentUserContext);
 
   const fetchSavedMovies = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage("");
+
     try {
-      const response = await mainApi.getMovies();
-      const currentUserSavedMovies = response.filter(
+      const getMovies =
+        (await JSON.parse(localStorage.getItem("savedMovies"))) || [];
+      const currentUserSavedMovies = getMovies.filter(
         (movie) => movie.owner === currentUser._id
       );
 
@@ -44,11 +47,13 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
 
       setSavedMovies(currentUserSavedMovies);
       setSavedMoviesToRender(currentUserSavedMovies);
-      setIsLoading(false);
     } catch {
       setErrorMessage(MOVIES_LIST_ERROR_MSG);
-      setIsLoading(false);
     }
+
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 300);
   }, [currentUser._id]);
 
   useEffect(() => {
@@ -56,14 +61,13 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
   }, [fetchSavedMovies]);
 
   function getSavedMovies(searchRequest, isToggle) {
-    setIsToggle(false);
     setErrorMessage("");
 
-    if (!searchRequest) {
-      const currentUserSavedMovies = savedMovies.filter(
-        (movie) => movie.owner === currentUser._id
-      );
+    const currentUserSavedMovies = savedMovies.filter(
+      (movie) => movie.owner === currentUser._id
+    );
 
+    if (!searchRequest) {
       if (currentUserSavedMovies.length === 0) {
         setIsInputDisabled(true);
         setIsToggleDisabled(true);
@@ -72,6 +76,7 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
         setIsToggleDisabled(false);
 
         if (isToggle) {
+          localStorage.setItem("isSavedMoviesToggle", "true");
           setIsToggle(true);
           const shortSavedMovies = currentUserSavedMovies.filter(
             (movie) => movie.duration <= SHORT_MOVIE
@@ -82,10 +87,12 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
             setIsInputDisabled(false);
           } else {
             setErrorMessage(HAVE_NO_SHORTMOVIE_MSG);
-            setIsInputDisabled(true);
+            setIsInputDisabled(false);
             setSavedMoviesToRender([]);
           }
         } else {
+          localStorage.setItem("isSavedMoviesToggle", "false");
+          setIsToggle(false);
           setSavedMoviesToRender(currentUserSavedMovies);
         }
       }
@@ -129,7 +136,17 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
     if (!isSelected) {
       try {
         await mainApi.deleteMovies(movie._id);
-        const response = await mainApi.getMovies();
+
+        const savedMoviesFromLocalStorage = JSON.parse(
+          localStorage.getItem("savedMovies")
+        );
+        const updatedSavedMovies = savedMoviesFromLocalStorage.filter(
+          (savedMovie) => savedMovie._id !== movie._id
+        );
+        localStorage.setItem("savedMovies", JSON.stringify(updatedSavedMovies));
+
+        const response = updatedSavedMovies;
+
         const currentNewSavedMovies = response.filter(
           (savedMovie) => savedMovie.owner === currentUser._id
         );
@@ -137,18 +154,37 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
           (movie) => movie.duration <= SHORT_MOVIE
         );
         setSavedMovies(currentNewSavedMovies);
+
         setSavedMoviesToRender((prevMovies) =>
           prevMovies.filter((savedMovie) => savedMovie._id !== movie._id)
         );
 
-        if (isToggle && shortSavedMovies.length === 0) {
-          setIsInputDisabled(true);
+        if (!isToggle && currentNewSavedMovies.length > 0) {
+          setErrorMessage(SEARCH_MOVIE_ERROR_MSG);
         }
 
-        // if (isToggle && shortSavedMovies.length === 0 && currentNewSavedMovies.length === 0) {
-        //   setIsInputDisabled(true);
-        //   setIsToggleDisabled(true);
-        // }
+        if (isToggle && shortSavedMovies.length > 0) {
+          setErrorMessage(SEARCH_SHORTMOVIE_ERROR_MSG);
+        }
+
+        if (
+          isToggle &&
+          shortSavedMovies.length === 0 &&
+          currentNewSavedMovies.length > 0
+        ) {
+          setIsInputDisabled(false);
+        }
+
+        if (
+          isToggle &&
+          shortSavedMovies.length === 0 &&
+          currentNewSavedMovies.length === 0
+        ) {
+          localStorage.setItem("isSavedMoviesToggle", "false");
+          setIsInputDisabled(true);
+          setIsToggleDisabled(true);
+          setErrorMessage(HAVE_NO_MOVIE_MSG);
+        }
 
         if (!isToggle && currentNewSavedMovies.length === 0) {
           setIsInputDisabled(true);
@@ -168,24 +204,20 @@ function SavedMovies({ isBurgerMenuOpen, onBurgerMenuClose }) {
         onGetMovies={getSavedMovies}
         isToggleDisabled={isToggleDisabled}
         isInputDisabled={isInputDisabled}
+        isLoading={isLoading}
       />
 
-      {isLoading ? (
-        <Preloader />
+      {errorMessage && savedMoviesToRender.length === 0 ? (
+        <span className="movies__error-message">{errorMessage}</span>
       ) : (
-        <>
-          {savedMoviesToRender.length === 0 && errorMessage ? (
-            <span className="movies__error-message">{errorMessage}</span>
-          ) : (
-            <MoviesCardList
-              moviesToRender={savedMoviesToRender}
-              moviesRemains={[]}
-              savedMoviesToggle={savedMoviesToggle}
-              savedMovies={savedMovies}
-              isToggle={isToggle}
-            />
-          )}
-        </>
+        <MoviesCardList
+          moviesToRender={savedMoviesToRender}
+          moviesRemains={[]}
+          savedMoviesToggle={savedMoviesToggle}
+          savedMovies={savedMovies}
+          isToggle={isToggle}
+          isLoading={isLoading}
+        />
       )}
     </section>
   );

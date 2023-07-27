@@ -21,6 +21,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .search__input {
@@ -34,7 +35,6 @@
   font-size: 14px;
   line-height: 18px;
   border-bottom: 1px solid transparent;
-  border-radius: 4px;
 }
 
 .search__input:focus {
@@ -102,9 +102,11 @@
   width: 34px;
   height: 14px;
   cursor: pointer;
+  transition: .3s;
 }
 
 .search__tumbler_disabled {
+  opacity: .6;
   cursor: default;
   pointer-events: none;
 }
@@ -148,6 +150,12 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
+  color: #000;
+  transition: .3s;
+}
+
+.search__tumbler-label_disabled {
+  opacity: .6;
 }
 
 @media screen and (max-width: 840px) {

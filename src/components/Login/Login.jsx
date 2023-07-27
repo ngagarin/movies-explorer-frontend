@@ -6,46 +6,52 @@ import { validateField } from "../../hooks/Validator";
 import showPasswordImage from "../../images/password/show_pass.svg";
 import hidePasswordImage from "../../images/password/hide_pass.svg";
 
-function Login({ onLogin }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [emailDirty, setEmailDirty] = useState(false);
-  const [passwordDirty, setPasswordDirty] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-  function handleEmailInput(event) {
-    const { value } = event.target;
-    setEmail(value);
-    setEmailDirty(true);
-  }
-
-  function handlePasswordInput(event) {
-    const { value } = event.target;
-    setPassword(value);
-    setPasswordDirty(true);
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onLogin(email, password);
-  }
-
-  const emailError = validateField(email, { isEmpty: true, isEmail: true });
-  const passwordError = validateField(password, {
-    isEmpty: true,
-    minLength: 6,
+function Login({ onLogin, isFormDisabled }) {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    emailDirty: false,
+    passwordDirty: false,
+    isPasswordVisible: false,
   });
 
+  const { email, password, emailDirty, passwordDirty, isPasswordVisible } = formData;
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+      [`${name}Dirty`]: true,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setFormData((prevData) => ({ ...prevData }));
+    try {
+      await onLogin(email, password);
+      setFormData((prevData) => ({
+        ...prevData,
+        isDataChanged: false,
+        isFormDirty: false,
+      }));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setFormData((prevData) => ({ ...prevData }));
+    }
+  };
+
+  const emailError = validateField(email, { isEmpty: true, isEmail: true });
+  const passwordError = validateField(password, { isEmpty: true, minLength: 6 });
   const inputValid = emailError === "" && passwordError === "";
 
-  // меняем данные формы, если не помещается в высоту дисплея
   const isDisplayHigherThenContainer = () => {
     const windowHeight = window.innerHeight;
     const windowWidth = window.innerWidth;
     const isHeightSmallerThan740px = windowHeight < 562;
     const isWidthGreaterThan480px = windowWidth > 480;
-
     return isHeightSmallerThan740px && isWidthGreaterThan480px;
   };
 
@@ -70,22 +76,23 @@ function Login({ onLogin }) {
         </h2>
       </div>
 
-      <form className="form__items" id="LoginForm" onSubmit={handleSubmit}>
+      <form className="form__items" id="LoginForm" onSubmit={handleSubmit} disabled={isFormDisabled}>
         <label className="form__label">
           <p className="form__input-name">E-mail</p>
           <input
             className={`form__input ${
               emailDirty && emailError ? "form__input_type_error" : ""
             }`}
-            onChange={handleEmailInput}
-            onFocus={() => setEmailDirty(true)}
-            onBlur={() => setEmailDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, emailDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, emailDirty: false }))}
             value={email}
             type="email"
             placeholder="Введите ваш Email"
             id="login-email-input"
-            name="login-email-input"
+            name="email"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           {emailDirty && emailError && (
@@ -99,21 +106,22 @@ function Login({ onLogin }) {
             className={`form__input ${
               passwordDirty && passwordError ? "form__input_type_error" : ""
             }`}
-            onChange={handlePasswordInput}
-            onFocus={() => setPasswordDirty(true)}
-            onBlur={() => setPasswordDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, passwordDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, passwordDirty: false }))}
             value={password}
             type={isPasswordVisible ? "text" : "password"}
             placeholder="Введите пароль"
             id="login-password-input"
-            name="login-password-input"
+            name="password"
             minLength="6"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           <div
             className="form__password-icon"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            onClick={() => setFormData((prevData) => ({ ...prevData, isPasswordVisible: !prevData.isPasswordVisible }))}
           >
             <img
               className="form__password-image"
@@ -131,10 +139,10 @@ function Login({ onLogin }) {
         <button
           form="LoginForm"
           className={`form__button ${
-            !inputValid ? "form__button_disabled" : ""
+            !inputValid || isFormDisabled? "form__button_disabled" : ""
           }`}
           type="submit"
-          disabled={!inputValid}
+          disabled={!inputValid || isFormDisabled}
         >
           Войти
         </button>

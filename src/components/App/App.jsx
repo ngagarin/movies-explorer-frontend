@@ -22,7 +22,6 @@ import MoviesApi from "../../utils/MoviesApi";
 import { signUp, signIn, logOut, checkToken } from "../../utils/AuthApi";
 import { CurrentUserContext } from "../../contexts/CurrentUserContext";
 import {
-  SOMETHING_WENT_WRONG_MSG,
   PROFILE_UPDATED_MSG,
   REQUEST_ERROR_MSG,
   getGreetingMessage,
@@ -34,19 +33,19 @@ import wellcomeImg from "../../images/auth/wellcome.json";
 
 function App() {
   const { pathname } = useLocation();
-  const location = useLocation();
   const navigate = useNavigate();
 
   const [currentUser, setCurrentUser] = useState({});
   const [isBurgerMenuOpen, setIsBurgerMenuOpen] = useState(false);
   const [authStatus, setAuthStatus] = useState({ image: "", message: "" });
   const [infoTooltip, setInfoTooltip] = useState(false);
-  const [isJustAuthorized, setIsJustAuthorized] = useState(false);
+  const [isFormDisaled, setisFormDisabled] = useState(false);
 
-  const isLanding = location.pathname === "/";
+  const isLanding = pathname === "/";
   const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
 
   function handleLogin(email, password) {
+    setisFormDisabled(true);
     signIn(email, password)
       .then((res) => {
         localStorage.setItem("jwt", res._id);
@@ -55,24 +54,22 @@ function App() {
           image: wellcomeImg,
           message: getGreetingMessage(res.name),
         });
-        setIsJustAuthorized(true);
-        setTimeout(() => {
-          setIsJustAuthorized(false);
-        }, 5000);
       })
-      .catch(() => {
+      .catch((err) => {
         setAuthStatus({
           image: crossImg,
-          message: SOMETHING_WENT_WRONG_MSG,
+          message: err.message,
         });
         handleInfoTooltip();
       })
       .finally(() => {
         handleInfoTooltip();
+        setisFormDisabled(false);
       });
   }
 
   function handleRegister(name, email, password) {
+    setisFormDisabled(true);
     signUp(name, email, password)
       .then(() => {
         setAuthStatus({
@@ -81,24 +78,35 @@ function App() {
         });
         handleLogin(email, password);
       })
-      .catch(() => {
+      .catch((err) => {
         setAuthStatus({
           image: crossImg,
-          message: SOMETHING_WENT_WRONG_MSG,
+          message: err.message,
         });
+        handleInfoTooltip();
       })
       .finally(() => {
         handleInfoTooltip();
+        setisFormDisabled(false);
       });
   }
 
   function handleLogOut() {
-    logOut();
-    localStorage.clear();
-    navigate("/");
+    logOut()
+      .then(() => {
+        navigate("/");
+      })
+      .catch((err) => {
+        setAuthStatus({
+          image: crossImg,
+          message: err.message,
+        });
+        handleInfoTooltip();
+      });
   }
 
   function handleUpdateUser(data) {
+    setisFormDisabled(true);
     MainApi.updateUserInfo(data)
       .then((updatedUser) => {
         setAuthStatus({
@@ -107,32 +115,42 @@ function App() {
         });
         setCurrentUser(updatedUser);
       })
-      .catch(() => {
+      .catch((err) => {
         setAuthStatus({
           image: crossImg,
-          message: SOMETHING_WENT_WRONG_MSG,
+          message: err.message,
         });
       })
       .finally(() => {
         handleInfoTooltip();
+        setisFormDisabled(false);
       });
   }
 
-  //присваиваем токен
+  // проверяем токен
   useEffect(() => {
     const jwt = localStorage.getItem("jwt");
-    if (jwt) {
-      checkToken(jwt)
-        .then((res) => {
-          if (res) {
-            localStorage.setItem("isLoggedIn", true);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+
+    if (isLoggedIn) {
+      if (jwt) {
+        checkToken(jwt)
+          .then((res) => {
+            if (res) {
+              localStorage.setItem("isLoggedIn", true);
+            } else {
+              localStorage.removeItem("jwt");
+              localStorage.clear();
+              navigate("/");
+            }
+          })
+          .catch(() => {
+            localStorage.removeItem("jwt");
+            localStorage.clear();
+            navigate("/");
+          });
+      }
     }
-  }, [navigate]);
+  }, [isLoggedIn, navigate]);
 
   // рендерим фильмы и данные профайла
   useEffect(() => {
@@ -143,15 +161,19 @@ function App() {
         MoviesApi.getAllMovies(),
       ])
         .then(([userInfo, getMovies, allMovies]) => {
-          setCurrentUser(userInfo, getMovies);
+          setCurrentUser(userInfo);
           localStorage.setItem("allMovies", JSON.stringify(allMovies));
+          const currentUserMovies = getMovies.filter(
+            (movie) => movie.owner === userInfo._id
+          );
+          localStorage.setItem("savedMovies", JSON.stringify(currentUserMovies));
         })
         .catch(() => {
           setAuthStatus({
             image: crossImg,
             message: REQUEST_ERROR_MSG,
           });
-        })
+        });
     }
   }, [isLoggedIn]);
 
@@ -205,7 +227,7 @@ function App() {
               isLoggedIn ? (
                 <Navigate to="/movies" />
               ) : (
-                <Login onLogin={handleLogin} />
+                <Login onLogin={handleLogin} isFormDisabled={isFormDisaled} />
               )
             }
           />
@@ -215,7 +237,10 @@ function App() {
               isLoggedIn ? (
                 <Navigate to="/movies" />
               ) : (
-                <Register onRegister={handleRegister} />
+                <Register
+                  onRegister={handleRegister}
+                  isFormDisabled={isFormDisaled}
+                />
               )
             }
           />
@@ -225,11 +250,12 @@ function App() {
             element={
               <ProtectedRoute
                 component={Profile}
-                isLoggedIn={isLoggedIn}
-                isBurgerMenuOpen={isBurgerMenuOpen}
                 onBurgerMenuClose={handleClose}
                 onUpdateUser={handleUpdateUser}
                 onLogout={handleLogOut}
+                isLoggedIn={isLoggedIn}
+                isBurgerMenuOpen={isBurgerMenuOpen}
+                isFormDisabled={isFormDisaled}
               />
             }
           />
@@ -240,7 +266,7 @@ function App() {
               <ProtectedRoute
                 component={Movies}
                 isLoggedIn={isLoggedIn}
-                isJustAuthorized={isJustAuthorized}
+                // isJustAuthorized={isJustAuthorized}
                 isBurgerMenuOpen={isBurgerMenuOpen}
                 onBurgerMenuClose={handleClose}
               />

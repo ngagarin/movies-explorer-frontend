@@ -1,73 +1,222 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import "./SearchForm.css";
+import AutocompleteList from "../AutocompleteList/AutocompleteList";
+import { SHORT_MOVIE } from "../../utils/constants";
 
 function SearchForm({ onGetMovies, isInputDisabled, isToggleDisabled }) {
   const { pathname } = useLocation();
   const [searchRequest, setSearchRequest] = useState("");
   const [searchRequestSavedMovies, setSearchRequestSavedMovies] = useState("");
-  const [isToggle, setIsToggle] = useState(false);
+  const [isMoviesToggle, setIsMoviesToggle] = useState(false);
+  const [isSavedMoviesToggle, setIsSavedMoviesToggle] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [inputValueMovies, setInputValueMovies] = useState("");
+  const [inputValueSavedMovies, setInputValueSavedMovies] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [isOnFocus, setIsOnFocus] = useState(false);
+  const [isInputModified, setIsInputModified] = useState(false);
 
+  const searchInputRef = useRef(null);
   const onGetMoviesRef = useRef(null);
   onGetMoviesRef.current = onGetMovies;
 
+  const isSearchEmpty =
+    inputValueMovies.trim() === "" && inputValueSavedMovies.trim() === "";
+
   useEffect(() => {
-    setIsToggle(false);
+    setIsMoviesToggle(false);
+    setIsSavedMoviesToggle(false);
 
     if (pathname !== "/saved-movies") {
       setSearchRequest("");
-      const localStorageMoviesToggle = localStorage.getItem("isToggle");
+      const localStorageMoviesToggle = localStorage.getItem("isMoviesToggle");
       const localStorageMoviesSearchRequest = localStorage.getItem(
         "moviesSearchRequest"
       );
 
-      if (localStorageMoviesToggle && localStorageMoviesSearchRequest) {
+      if (
+        localStorageMoviesToggle !== null &&
+        localStorageMoviesSearchRequest !== null
+      ) {
         setSearchRequest(localStorageMoviesSearchRequest);
-        setIsToggle(localStorageMoviesToggle === "true");
+        setInputValueMovies(localStorageMoviesSearchRequest);
+        setIsMoviesToggle(localStorageMoviesToggle === "true");
       }
+    } else {
+      const localStorageSavedMoviesToggle = localStorage.getItem(
+        "isSavedMoviesToggle"
+      );
+
+      setInputValueSavedMovies(searchRequestSavedMovies);
+      setIsSavedMoviesToggle(localStorageSavedMoviesToggle === "true");
     }
-  }, [pathname]);
+  }, [pathname, searchRequestSavedMovies]);
 
-  const handleSearchRequest = useCallback((evt) => {
+  const fetchMovieSuggestions = useCallback(
+    (value) => {
+      const allMoviesArray = JSON.parse(localStorage.getItem("allMovies"));
+      const savedMoviesArray = JSON.parse(localStorage.getItem("savedMovies"));
+
+      let moviesArray =
+        pathname !== "/saved-movies" ? allMoviesArray : savedMoviesArray;
+      const isShortMovies =
+        pathname !== "/saved-movies"
+          ? isMoviesToggle && moviesArray
+          : isSavedMoviesToggle && moviesArray;
+
+      if (isShortMovies) {
+        moviesArray = moviesArray.filter(
+          (movie) => movie.duration <= SHORT_MOVIE
+        );
+      }
+
+      if (!moviesArray || moviesArray.length === 0) {
+        setSuggestions([]);
+        return;
+      }
+
+      const lowerCaseValue = value.toLowerCase();
+      const filteredSuggestions = moviesArray.filter((movie) =>
+        movie.nameRU.toLowerCase().includes(lowerCaseValue)
+      );
+
+      setSuggestions(filteredSuggestions);
+    },
+    [pathname, isMoviesToggle, isSavedMoviesToggle]
+  );
+
+  const handleSearchRequest = useCallback(
+    (evt) => {
       const value = evt.target.value;
-
       if (pathname === "/saved-movies") {
-        setSearchRequestSavedMovies(value);
-        onGetMoviesRef.current(value);
+        setInputValueSavedMovies(value);
       } else {
-        setSearchRequest(value);
-        onGetMoviesRef.current(value, isToggle);
+        setInputValueMovies(value);
       }
     },
-    [pathname, isToggle]
+    [pathname]
   );
 
-  const handleSubmit = useCallback((event) => {
-      event.preventDefault();
-      setIsToggle(isToggle);
+  const handleInputClear = useCallback(() => {
+    if (pathname === "/saved-movies") {
+      setInputValueSavedMovies("");
+      setSearchRequestSavedMovies("");
+      onGetMoviesRef.current("", isSavedMoviesToggle);
+    } else {
+      setInputValueMovies("");
+      setSearchRequest("");
+      onGetMoviesRef.current("", isMoviesToggle);
+    }
+    setIsInputModified(false);
+  }, [pathname, isMoviesToggle, isSavedMoviesToggle, onGetMoviesRef]);
 
-      if (pathname === "/saved-movies") {
-        onGetMoviesRef.current(searchRequestSavedMovies);
+  const handleInputChange = useCallback(
+    (evt) => {
+      const value = evt.target.value;
+      if (value.trim() === "") {
+        handleInputClear();
       } else {
-        onGetMoviesRef.current(searchRequest, isToggle);
+        setIsInputModified(true);
       }
+      handleSearchRequest(evt);
+      fetchMovieSuggestions(value);
     },
-    [pathname, searchRequest, searchRequestSavedMovies, isToggle]
+    [fetchMovieSuggestions, handleInputClear, handleSearchRequest]
   );
 
-  const handleToggle = useCallback(() => {
-    setIsToggle(!isToggle);
-  }, [isToggle]);
+  const handleMoviesToggle = useCallback(() => {
+    setIsMoviesToggle(!isMoviesToggle);
+  }, [isMoviesToggle]);
+
+  const handleSavedMoviesToggle = useCallback(() => {
+    setIsSavedMoviesToggle(!isSavedMoviesToggle);
+  }, [isSavedMoviesToggle]);
 
   useEffect(() => {
     if (pathname === "/saved-movies") {
-      onGetMoviesRef.current(searchRequestSavedMovies, isToggle);
+      onGetMoviesRef.current(searchRequestSavedMovies, isSavedMoviesToggle);
     } else if (pathname === "/movies" && searchRequest.length > 0) {
-      onGetMoviesRef.current(searchRequest, isToggle);
+      onGetMoviesRef.current(searchRequest, isMoviesToggle);
     }
-  }, [pathname, searchRequest, searchRequestSavedMovies, isToggle]);
+  }, [
+    pathname,
+    searchRequest,
+    searchRequestSavedMovies,
+    isMoviesToggle,
+    isSavedMoviesToggle,
+  ]);
 
-  const isSearchEmpty = searchRequest.trim() === "" && searchRequestSavedMovies.trim() === "";
+  const handleSearch = useCallback(
+    async (searchValue, isMoviesToggle, isSavedMoviesToggle) => {
+      setIsSearching(true);
+
+      if (pathname === "/saved-movies") {
+        setSearchRequestSavedMovies(searchValue);
+        await onGetMoviesRef.current(searchValue, isSavedMoviesToggle);
+      } else {
+        setSearchRequest(searchValue);
+        await onGetMoviesRef.current(searchValue, isMoviesToggle);
+      }
+
+      setIsSearching(false);
+      setIsInputModified(false);
+
+      setTimeout(() => {
+        if (searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }, 100);
+    },
+    [pathname, onGetMoviesRef]
+  );
+
+  const handleSubmit = useCallback(
+    async (event) => {
+      event.preventDefault();
+      if (!isInputModified) return;
+      handleSearch(
+        pathname === "/saved-movies" ? inputValueSavedMovies : inputValueMovies
+      );
+    },
+    [
+      handleSearch,
+      pathname,
+      inputValueSavedMovies,
+      inputValueMovies,
+      isInputModified,
+    ]
+  );
+
+  // Автокомплит
+  const handleAutocompleteItemClick = useCallback(
+    (suggestion) => {
+      if (pathname === "/saved-movies") {
+        setInputValueSavedMovies(suggestion.nameRU);
+        handleSearch(suggestion.nameRU, isSavedMoviesToggle);
+      } else {
+        setInputValueMovies(suggestion.nameRU);
+        handleSearch(suggestion.nameRU, isMoviesToggle);
+      }
+      setSuggestions([]);
+    },
+    [pathname, handleSearch, isMoviesToggle, isSavedMoviesToggle]
+  );
+
+  const handleContainerClick = useCallback((event) => {
+    const isInput = event.target.id === "search-input";
+    const isAutocompleteItem = event.target.closest(".autocomplete-item");
+    if (!isInput && !isAutocompleteItem) {
+      setIsOnFocus(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("click", handleContainerClick);
+    return () => {
+      document.removeEventListener("click", handleContainerClick);
+    };
+  }, [handleContainerClick]);
 
   return (
     <div className="search">
@@ -78,28 +227,50 @@ function SearchForm({ onGetMovies, isInputDisabled, isToggleDisabled }) {
               className={`search__input ${
                 isSearchEmpty ? "search__input_type_error" : ""
               }`}
-              onChange={handleSearchRequest}
+              onChange={handleInputChange}
+              onFocus={() => setIsOnFocus(true)}
               value={
                 pathname === "/saved-movies"
-                  ? searchRequestSavedMovies
-                  : searchRequest || ""
+                  ? inputValueSavedMovies
+                  : inputValueMovies || ""
               }
               type="text"
               placeholder="Фильм"
               id="search-input"
               name="search-input"
               autoComplete="off"
-              disabled={isInputDisabled}
+              disabled={isInputDisabled || isSearching}
+              ref={searchInputRef}
               required
             />
+
+            {!isSearchEmpty && isOnFocus ? (
+              <span className="autocomplete-container">
+                {suggestions.length > 0 && (
+                  <AutocompleteList
+                    suggestions={suggestions}
+                    onItemClick={handleAutocompleteItemClick}
+                  />
+                )}
+              </span>
+            ) : (
+              ""
+            )}
           </label>
 
           <button
             className={`search__button ${
-              isSearchEmpty || isInputDisabled ? "search__button_disabled" : ""
+              isSearchEmpty || !isInputModified || isInputDisabled
+                ? "search__button_disabled"
+                : ""
             }`}
             type="submit"
-            disabled={isSearchEmpty || isInputDisabled}
+            disabled={
+              isSearchEmpty ||
+              !isInputModified ||
+              isSearching ||
+              isInputDisabled
+            }
           >
             Найти
           </button>
@@ -109,24 +280,50 @@ function SearchForm({ onGetMovies, isInputDisabled, isToggleDisabled }) {
           <label
             className={`search__tumbler ${
               pathname === "/movies"
-                ? isSearchEmpty || isToggleDisabled ? "search__tumbler_disabled" : ""
-                : isToggleDisabled ? "search__tumbler_disabled" : ""
+                ? isSearchEmpty
+                  ? "search__tumbler_disabled"
+                  : ""
+                : isToggleDisabled
+                  ? "search__tumbler_disabled"
+                  : ""
             }`}
           >
             <input
               className="search__checkbox"
               name="checkbox"
               type="checkbox"
-              checked={isToggle}
-              onChange={handleToggle}
-              disabled={pathname === "/movies"
-                ? isSearchEmpty || isToggleDisabled
-                : isToggleDisabled
+              checked={
+                pathname === "/movies"
+                  ? isMoviesToggle
+                  : isSavedMoviesToggle
+              }
+              onChange={
+                pathname === "/movies"
+                  ? handleMoviesToggle
+                  : handleSavedMoviesToggle
+              }
+              disabled={
+                pathname === "/movies"
+                  ? isSearchEmpty
+                  : isToggleDisabled
               }
             />
             <span className="search__slider" />
           </label>
-          <p className="search__tumbler-label">Короткометражки</p>
+
+          <p
+            className={`search__tumbler-label ${
+              pathname === "/movies"
+                ? isSearchEmpty
+                  ? "search__tumbler-label_disabled"
+                  : ""
+                : isToggleDisabled
+                ? "search__tumbler-label_disabled"
+                : ""
+            }`}
+          >
+            Короткометражки
+          </p>
         </div>
       </form>
     </div>

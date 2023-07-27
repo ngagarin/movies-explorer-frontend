@@ -1,64 +1,69 @@
 // const BASE_URL = '/api';
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = "http://localhost:3000/api";
 
 const checkResponse = (res) => {
-  return res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`);
-}
+  if (res.ok) {
+    return res.json();
+  } else {
+    return res.json().then((data) => {
+      throw new Error(data.message || "Произошла неизвестная ошибка");
+    });
+  }
+};
 
 // registration
 const signUp = (name, email, password) => {
   return fetch(`${BASE_URL}/signup`, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ name, email, password }),
-  })
-    .then(checkResponse);
-}
+  }).then(checkResponse);
+};
 
 // login
 const signIn = (email, password) => {
   return fetch(`${BASE_URL}/signin`, {
-    method: 'POST',
-    credentials: 'include',
+    method: "POST",
+    credentials: "include",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({ email, password }),
   })
     .then((data) => {
-    localStorage.setItem('jwt', data._id);
-    return data;
-  })
-    .then(checkResponse)
-}
+      localStorage.setItem('jwt', data.token);
+      return data;
+    })
+    .then(checkResponse);
+};
 
 // logout
 const logOut = () => {
   return fetch(`${BASE_URL}/signout`, {
-    method: 'POST',
-    credentials: 'include',
+    method: "POST",
+    credentials: "include",
   })
     .then((data) => {
-    localStorage.removeItem('jwt');
-    return data;
-  })
-    .then(checkResponse)
-}
+      localStorage.removeItem("jwt");
+      localStorage.clear();
+      return data;
+    })
+    .then(checkResponse);
+};
 
 const checkToken = () => {
   return fetch(`${BASE_URL}/users/me`, {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
     headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/json',
+      Accept: "application/json",
+      "Content-Type": "application/json",
     },
-  })
-    .then(checkResponse);
-}
+  }).then(checkResponse);
+};
 
-export {signUp, signIn, logOut, checkToken};
+export { signUp, signIn, logOut, checkToken };

@@ -3,7 +3,6 @@ import Lottie from 'lottie-react';
 import "../Popups/Popups.css";
 
 function InfoTooltip({ authStatus, isOpen, onClose }) {
-  const [isAnimationStopped, setIsAnimationStopped] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
@@ -28,7 +27,6 @@ function InfoTooltip({ authStatus, isOpen, onClose }) {
         onClose();
       }, 1500);
 
-      setIsAnimationStopped(false);
       setAnimationKey((prevKey) => prevKey + 1);
 
       return () => {
@@ -48,7 +46,6 @@ function InfoTooltip({ authStatus, isOpen, onClose }) {
       <figure className="popup__infoTooltip-container">
         <Lottie
           key={animationKey}
-          isStopped={isAnimationStopped}
           className="popup__icon"
           animationData={authStatus.image}
           loop={false}

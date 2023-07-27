@@ -6,10 +6,12 @@ class Api {
 
   _checkResponse(res) {
     if (res.ok) {
-      return res.json();
-    } else {
-      return Promise.reject(`Ошибка: ${res.status}`);
-    }
+    return res.json();
+  } else {
+    return res.json().then(data => {
+      throw new Error(data.message || 'Произошла неизвестная ошибка');
+    });
+  }
   }
 
   getDataFromServer() {
