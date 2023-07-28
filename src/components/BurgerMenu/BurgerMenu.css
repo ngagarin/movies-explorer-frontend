@@ -118,13 +118,7 @@
   background-repeat: no-repeat;
 }
 
-@media screen and (min-width:769px) {
-  .burger-menu {
-    display: none;
-  }
-}
-
-@media screen and (max-width:400px) {
+@media screen and (max-width:480px) {
   .burger-menu {
     padding: 18.16px 18.16px 92px;
     width: 100%;
@@ -133,5 +127,11 @@
   .burger-menu__links {
     padding-top: 105.44px;
     row-gap: 24px;
+  }
+}
+
+@media screen and (min-width:841px) {
+  .burger-menu {
+    display: none;
   }
 }

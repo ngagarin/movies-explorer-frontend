@@ -28,10 +28,14 @@
 
 Скопировать по [cсылке на GitHub](https://github.com/ngagarin/movies-explorer-frontend.git)
 
+##### Бэкенд:
+
+Посмотреть [на GitHub](https://github.com/ngagarin/movies-explorer-api)
+
 **Figma**
 
 * [Ссылка на макет в Figma](https://disk.yandex.ru/d/4vBNaBdr8_h1TQ)
 
-*****Режим isLoggedIn*****
-По умолчанию вёрстка сайта определена как залогиненый юзер.
-Для изменения необходимо установить isLoggedIn={false} на 43 строке файла App.js
+**Pull request**
+
+* [Ссылка на Pull request (GitHub)](https://github.com/ngagarin/movies-explorer-frontend/pull/3)

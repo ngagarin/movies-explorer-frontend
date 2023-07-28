@@ -129,6 +129,7 @@
 }
 
 .profile__button_disabled {
+  opacity: .6;
   cursor: default;
   pointer-events: none;
 }

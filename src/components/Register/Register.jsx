@@ -1,63 +1,67 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import "../Form/Form.css";
 import Logo from "../Logo/Logo";
 import { validateField } from "../../hooks/Validator";
 import showPasswordImage from "../../images/password/show_pass.svg";
 import hidePasswordImage from "../../images/password/hide_pass.svg";
 
-function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+function Register({ onRegister, isFormDisabled }) {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    nameDirty: false,
+    emailDirty: false,
+    passwordDirty: false,
+    confirmPasswordDirty: false,
+    isPasswordVisible: false,
+    isConfirmPasswordVisible: false,
+  });
 
-  const [nameDirty, setNameDirty] = useState(false);
-  const [emailDirty, setEmailDirty] = useState(false);
-  const [passwordDirty, setPasswordDirty] = useState(false);
-  const [confirmPasswordDirty, setConfirmPasswordDirty] = useState(false);
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
-    useState(false);
+  const {
+    name,
+    email,
+    password,
+    confirmPassword,
+    nameDirty,
+    emailDirty,
+    passwordDirty,
+    confirmPasswordDirty,
+    isPasswordVisible,
+    isConfirmPasswordVisible,
+  } = formData;
 
-  function handleNamelInput(event) {
-    const { value } = event.target;
-    setName(value);
-    setNameDirty(true);
-  }
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+      [`${name}Dirty`]: true,
+    }));
+  };
 
-  function handleEmailInput(event) {
-    const { value } = event.target;
-    setEmail(value);
-    setEmailDirty(true);
-  }
-
-  function handlePasswordInput(event) {
-    const { value } = event.target;
-    setPassword(value);
-    setPasswordDirty(true);
-  }
-
-  function handleConfirmPasswordInput(event) {
-    const { value } = event.target;
-    setConfirmPassword(value);
-    setConfirmPasswordDirty(true);
-  }
-
-  function handleSubmit(e) {
-    console.log({
-      name: name,
-      email: email,
-      password: password,
-    });
-    e.preventDefault();
-  }
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setFormData((prevData) => ({ ...prevData }));
+    try {
+      await onRegister(name, email, password);
+      setFormData((prevData) => ({
+        ...prevData,
+        isDataChanged: false,
+        isFormDirty: false,
+      }));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setFormData((prevData) => ({ ...prevData }));
+    }
+  };
 
   const nameError = validateField(name, { isEmpty: true, minLength: 2 });
   const emailError = validateField(email, { isEmpty: true, isEmail: true });
-  const passwordError = validateField(password, {
-    isEmpty: true,
-    minLength: 6,
-  });
+  const passwordError = validateField(password, { isEmpty: true, minLength: 6 });
   const confirmPasswordError = validateField(confirmPassword, {
     isEmpty: true,
     isPasswordMatch: true,
@@ -104,20 +108,20 @@ function Register() {
           <p className="form__input-name">Имя</p>
           <input
             className={`form__input ${
-              nameError ? "form__input_type_error" : ""
+              nameDirty && nameError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handleNamelInput(event, setName)}
-            onChange={handleNamelInput}
-            onFocus={() => setNameDirty(true)}
-            onBlur={() => setNameDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, nameDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, nameDirty: false }))}
             value={name}
             type="text"
             placeholder="Имя"
             id="register-name-input"
-            name="register-name-input"
+            name="name"
             minLength="2"
             maxLength="40"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           {nameDirty && nameError && (
@@ -129,18 +133,18 @@ function Register() {
           <p className="form__input-name">E-mail</p>
           <input
             className={`form__input ${
-              emailError ? "form__input_type_error" : ""
+              emailDirty && emailError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handleEmailInput(event, setEmail)}
-            onChange={handleEmailInput}
-            onFocus={() => setEmailDirty(true)}
-            onBlur={() => setEmailDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, emailDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, emailDirty: false }))}
             value={email}
             type="email"
             placeholder="Введите ваш Email"
             id="register-email-input"
-            name="register-email-input"
+            name="email"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           {emailDirty && emailError && (
@@ -152,24 +156,24 @@ function Register() {
           <p className="form__input-name">Пароль</p>
           <input
             className={`form__input ${
-              passwordError ? "form__input_type_error" : ""
+              passwordDirty && passwordError ? "form__input_type_error" : ""
             }`}
-            // onChange={(event) => handlePasswordInput(event, setPassword)}
-            onChange={handlePasswordInput}
-            onFocus={() => setPasswordDirty(true)}
-            onBlur={() => setPasswordDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, passwordDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, passwordDirty: false }))}
             value={password}
             type={isPasswordVisible ? "text" : "password"}
             placeholder="Введите пароль"
             id="register-password-input"
-            name="register-password-input"
+            name="password"
             minLength="6"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           <div
             className="form__password-icon"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+            onClick={() => setFormData((prevData) => ({ ...prevData, isPasswordVisible: !prevData.isPasswordVisible }))}
           >
             <img
               className="form__password-image"
@@ -186,27 +190,27 @@ function Register() {
           <p className="form__input-name">Подтверждение пароля</p>
           <input
             className={`form__input ${
-              confirmPasswordError ? "form__input_type_error" : ""
+              confirmPasswordDirty && confirmPasswordError
+                ? "form__input_type_error"
+                : ""
             }`}
-            // onChange={(event) =>
-            //   handleConfirmPasswordInput(event, setConfirmPassword)
-            // }
-            onChange={handleConfirmPasswordInput}
-            onFocus={() => setConfirmPasswordDirty(true)}
-            onBlur={() => setConfirmPasswordDirty(false)}
+            onChange={handleInputChange}
+            onFocus={() => setFormData((prevData) => ({ ...prevData, confirmPasswordDirty: true }))}
+            onBlur={() => setFormData((prevData) => ({ ...prevData, confirmPasswordDirty: false }))}
             value={confirmPassword}
             type={isConfirmPasswordVisible ? "text" : "password"}
             placeholder="Повторите пароль"
             id="register-password-confirm-input"
-            name="register-password-confirm-input"
+            name="confirmPassword"
             minLength="6"
             autoComplete="off"
+            disabled={isFormDisabled}
             required
           />
           <div
             className="form__password-icon"
             onClick={() =>
-              setIsConfirmPasswordVisible(!isConfirmPasswordVisible)
+              setFormData((prevData) => ({ ...prevData, isConfirmPasswordVisible: !prevData.isConfirmPasswordVisible }))
             }
           >
             <img
@@ -229,10 +233,10 @@ function Register() {
         <button
           form="RegisterForm"
           className={`form__button ${
-            !inputValid ? "form__button_disabled" : ""
+            !inputValid || isFormDisabled ? "form__button_disabled" : ""
           }`}
           type="submit"
-          disabled={!inputValid}
+          disabled={!inputValid || isFormDisabled}
         >
           Зарегистрироваться
         </button>

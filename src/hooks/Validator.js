@@ -20,11 +20,8 @@ export const validateField = (value, validations) => {
     error = "Это обязательное поле";
   }
 
-
   return error;
 };
-
-export const SearchFormError = "Начните ввод ключевых слов";
 
 export const isPasswordMatch = (password, confirmPassword) => {
   return password === confirmPassword;
